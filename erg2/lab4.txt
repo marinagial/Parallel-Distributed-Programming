@@ -1,0 +1,41 @@
+public class Lab4 {
+
+    public static void main(String[] args) {
+
+        int numThreads = 4; //τοπικό στη main ,μοιράζεται με την ίδια τιμή στα threads
+	
+	    int n = 0; //τοπικό στη main
+		CounterThread counterThreads[] = new CounterThread[numThreads];//δημιουργία νέου πίνακα αντικειμένου counterThread τοπικό στη main
+		for (int i = 0; i < numThreads; i++) { //i τοπικό στη for loop , μοιράζεται με διαφορετική τιμή σε κάθε thread
+		    counterThreads[i] = new CounterThread(i, n); // i και n γίνονται ορισματα τιμής
+		    counterThreads[i].start();
+		}
+	
+        for (int i = 0; i < numThreads; i++) { //i τοπικό στη for loop , δεν μοιράζεται 
+            try {
+				counterThreads[i].join();
+				n += counterThreads[i].threadN;
+            }
+            catch (InterruptedException e) {}
+		} 
+		System.out.println("Main n = "+n); 
+    }
+
+}
+
+class CounterThread extends Thread {
+  	
+    int threadID; //μεταβλητή αντικειμενου, η τιμή της καθορίζεται στον κατασκευαστή
+    int threadN; //μεταβλητή αντικειμενου 
+    
+    public CounterThread(int tid, int n) {
+        this.threadID = tid;
+        this.threadN = n;
+    }
+  	
+    public void run() {
+              
+        threadN = threadN + 1 + threadID; // η αλλαγμένη τιμή επιστρέφει στη main
+        System.out.println("Thread "+threadID+ " n = "+threadN); 
+    }
+}

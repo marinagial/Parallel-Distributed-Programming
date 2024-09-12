@@ -1,0 +1,53 @@
+public class Lab1 {
+
+    static int n = 0; //καθολική μεταβλητή , μοιραζόμενη εντός της κλάσης 
+    
+    static int[] a; //καθολική μεταβλητή , μοιραζόμενο εντός της κλάσης 
+
+    public static void main(String[] args) {
+
+        int numThreads = 4; //numThreads τοπικη στη main , δεν μοιράζεται 
+		
+	    a = new int[numThreads] ; 
+	    
+	    for (int i = 0; i < numThreads; i++) //i τοπικό στη for 
+			a[i] = 0; 
+			
+		CounterThread counterThreads[] = new CounterThread[numThreads]; //τοπικό στη main
+		for (int i = 0; i < numThreads; i++) {
+		    counterThreads[i] = new CounterThread(i); //αντικείμενο κλάσης CounterThread το i γίνεται όρισμα τιμής που μοιράζεται με διαφορετική τιμή σε κάθε thread
+		    counterThreads[i].start();
+		}
+
+        for (int i = 0; i < numThreads; i++) { //νέο i τοπικό εντός της for ,, δεν μοιράζεται
+            try {
+				counterThreads[i].join(); 
+				n = n + counterThreads[i].threadN; //αλλαγή τιμής στο n 
+            }
+            catch (InterruptedException e) {}
+		} 
+        for (int i = 0; i < numThreads; i++) //νέο i τοπικό εντός της for , δεν μοιράζεται
+			System.out.println("a["+i+"] = "+a[i]);
+			
+		System.out.println("n = "+n); 
+    }
+ }
+
+
+class CounterThread extends Thread {
+	  	
+  	int threadID; //μεταβλητές αντικειμένου
+	int threadN; //μεταβλητές αντικειμενου
+	    
+	public CounterThread(int tid) {
+	    this.threadID = tid; //χρήση των μτβλ αντικειμένου στον κατασκευαστή
+	    this.threadN = n; //χρήση των μτβλ αντικειμένου στον κατασκευαστή 
+	}
+	  	
+	public void run() {
+	  
+	    threadN = threadN + 1 + threadID;  //δεν μοιράζεται
+	    a[threadID] = a[threadID] + 1 + threadID; //αλλαγή τιμής του α που είναι μοιραζομενο
+		System.out.println("Thread "+threadID+" n = "+ threadN +"  a["+threadID+"] ="+ a[threadID]); 
+	}
+}

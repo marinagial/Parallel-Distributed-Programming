@@ -1,0 +1,51 @@
+
+   
+public class GlobalVariables {
+
+    static int n = 5;  //καθολική μεταβλητή , μοιράζεται
+    static int[] a;  // καθολική μεταβλητή , μοιράζεται
+
+    public static void main(String[] args) {
+
+        int numThreads = 10;  //τοπικό στη main 
+	    a = new int[numThreads]; //τοπικό στη main
+	    
+	    for (int i = 0; i < numThreads; i++)
+			a[i] = 0; 
+			
+		CounterThread counterThreads[] = new CounterThread[numThreads]; //τοπικό στη main 
+		for (int i = 0; i < numThreads; i++) { // i τοπικό εντός του for loop 
+		    counterThreads[i] = new CounterThread(i); // i γίνεται όρισμα τιμής , κάθε thread θα λάβει διαφορετική τιμή 
+		    counterThreads[i].start();
+		}
+
+        for (int i = 0; i < numThreads; i++) { //i τοπικό στο loop , δεν μοιράζεται
+            try {
+				counterThreads[i].join();
+				n = n + counterThreads[i].threadN; //μοιραζόμενο n
+            }
+            catch (InterruptedException e) {}
+		} 
+        for (int i = 0; i < numThreads; i++) //i τοπικό στο loop , δεν μοιράζεται
+			System.out.println("a["+i+"] = "+a[i]);
+			
+		System.out.println("n = "+n); 
+    }
+
+	static class CounterThread extends Thread {
+	  	
+	    int threadID; //μεταβλητή αντικειμένου
+	    int threadN; //μεταβλητή αντικειμένου
+	    
+	    public CounterThread(int tid) {
+	        this.threadID = tid;
+	        this.threadN = n;
+	    }
+	  	
+	    public void run() {
+	        threadN = threadN + threadID; //δεν επιστρέφεται η τιμή
+            a[threadID] = a[threadID] + threadN; //αλλαγή τιμής του a , μοιραζόμενο
+            System.out.println("Thread "+threadID+ " my n = "+threadN+ " my a = "+a[threadID]);  
+	    }
+	}
+}	

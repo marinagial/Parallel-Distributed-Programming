@@ -1,0 +1,54 @@
+public class MainArguments {
+
+    public static void main(String[] args) {
+
+        int numThreads = 10;  //τοπική στη main , δεν μοιράζεται 
+        
+		int n = 5;  //τοπική στη main, μοιράζεται με ίδια τιμή σε κάθε thread
+	    int[] a = new int[numThreads];  // πίνακας τοπικός στη main
+	    for (int i = 0; i < numThreads; i++) // i τοπικό στο for loop 
+			a[i] = i; 
+			
+		
+		CounterThread counterThreads[] = new CounterThread[numThreads]; // τοπικό στη main
+		for (int i = 0; i < numThreads; i++) { // i τοπικό στο loop m μοιράζεται με διαφορετική τιμή σε κάθε thread
+		    counterThreads[i] = new CounterThread(i, n, a); // i και n ορίσματα τιμής , a όρισμα αναφορας
+		    counterThreads[i].start();
+		}
+
+        int sum = 0; //τοπικό στη main , δεν μοιράζεται
+        for (int i = 0; i < numThreads; i++) { // i τοπικό στο loop , δεν μοιράζεται
+            try {
+				counterThreads[i].join();
+				sum = sum + counterThreads[i].n;
+            }
+            catch (InterruptedException e) {}
+		}
+		
+		System.out.println("sum = "+ sum);
+		for (int i = 0; i < numThreads; i++) // i topiko sto loop
+			System.out.println("a["+i+"] = "+a[i]); 	
+    }
+
+}
+
+class CounterThread extends Thread {
+  	
+    int threadID; //  μεταβλητή αντικειμενου
+    int n; //μεταβλητή αντικειμενου , επιστρέφεται η τιμή στη main 
+    int[] a; //μεταβλητή αντικειμένου
+    
+    public CounterThread(int tid, int n, int[] a) { //καθορίζονται οι τιμες των μεταβλητών αντικειμένου εντός του κατασκευαστη
+        this.threadID = tid; 
+        this.n = n;
+        this.a = a;
+    }
+  	
+    public void run() {
+        
+        n = n + threadID;
+        a[threadID] = a[threadID] + n; // όρισμα αναφορας που επιστρέφει στη main αλλαγμένο 
+        System.out.println("Thread "+threadID+ " my n = "+n+ " my a = "+a[threadID]); 
+    }
+}
+

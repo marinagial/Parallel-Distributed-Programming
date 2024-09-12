@@ -1,0 +1,51 @@
+public class Lab2 {
+
+    public static void main(String[] args) {
+
+        int numThreads = 4; //τοπικό εντός της main , 
+		
+		int n = 0; //τοπικό στην main
+	    int[] a = new int[numThreads];//τοπικό στην main
+	    for (int i = 0; i < numThreads; i++) //i τοπικό εντός του for loop
+			a[i] = 0; 
+		
+		CounterThread counterThreads[] = new CounterThread[numThreads]; //τοπικό στην main
+		for (int i = 0; i < numThreads; i++) { //i τοπικό εντός του for loop
+		    counterThreads[i] = new CounterThread(i, n, a);  //αντικείμενο κλάσης counterThread , το i & to n ορίσματα τιμής , το i μοιράζεται με διαφορετική τιμή σε κάθε tread ενώ το n με την ίδια , το a όρισμα αναφοράς
+		    counterThreads[i].start();
+		}
+
+        for (int i = 0; i < numThreads; i++) {//i τοπικό εντός του for loop, δεν μοιράζεται
+            try {
+				counterThreads[i].join();
+            }
+            catch (InterruptedException e) {}
+		}
+		
+		System.out.println("n = "+n);
+		
+		for (int i = 0; i < numThreads; i++)//i τοπικό εντός του for loop
+			System.out.println("a["+i+"] = "+a[i]); 	
+    }
+
+}
+
+class CounterThread extends Thread {
+  	
+    int threadID; //μεταβλητή αντικειμένου
+    int n; //μεταβλητή αντικειμένου
+    int[] a; //μεταβλητή αντικειμένου
+    
+    public CounterThread(int tid, int n, int[] a) {
+        this.threadID = tid; //δήλωση των 3 μεταβλητών στον κατασκευαστή
+        this.n = n;
+        this.a = a;
+    }
+  	
+    public void run() {
+        
+        n = n + threadID ; // θα επιστρέψει με αλλαγμένη τιμή στη main
+        a[threadID] = a[threadID] + n ; // θα επιστρέψει με αλλαγμένη τιμή στη main
+        System.out.println("Thread "+threadID+ " my a = "+n[threadID]); 
+    }
+}
